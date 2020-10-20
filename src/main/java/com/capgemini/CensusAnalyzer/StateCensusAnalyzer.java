@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 
-
 public class StateCensusAnalyzer {
 
 	public Path csvFilePath;
@@ -29,25 +28,52 @@ public class StateCensusAnalyzer {
 			CsvToBeanBuilder<CsvStateCensus> builder = new CsvToBeanBuilder<CsvStateCensus>(reader);
 			builder.withType(CsvStateCensus.class);
 			builder.withIgnoreLeadingWhiteSpace(true);
-			
+
 			CsvToBean<CsvStateCensus> csvToBean = builder.build();
-			
+
 			int noOfRecords = 0;
 			Iterator<CsvStateCensus> stateCensusIterator = csvToBean.iterator();
-			while(stateCensusIterator.hasNext()) {
+			while (stateCensusIterator.hasNext()) {
 				noOfRecords++;
 				CsvStateCensus csvReader = stateCensusIterator.next();
 				System.out.println(csvReader.toString());
 			}
 			return noOfRecords;
+		} catch (IOException E1) {
+			throw new StateCensusAnalyzerException("Invalid Path Provided",
+					StateCensusAnalyzerException.ExceptionType.INCORRECT_PATH);
+		} catch (IllegalStateException E2) {
+			throw new StateCensusAnalyzerException("Invalid state found",
+					StateCensusAnalyzerException.ExceptionType.INCORRECT_STATE);
 		}
-		catch(IOException E1) {
-			throw new StateCensusAnalyzerException("Invalid Path Provided", StateCensusAnalyzerException.ExceptionType.INCORRECT_PATH);
+
+	}
+	// Read the number of records in the state code file
+	public int readStateCodeCsvRecords() throws StateCensusAnalyzerException {
+		Reader reader = null;
+		try {
+			reader = Files.newBufferedReader(csvFilePath);
+			CsvToBeanBuilder<CsvStateCodes> builder = new CsvToBeanBuilder<>(reader);
+			builder.withType(CsvStateCodes.class);
+			builder.withIgnoreLeadingWhiteSpace(true);
+
+			CsvToBean<CsvStateCodes> csvStateCode = builder.build();
+
+			int noOfRecords = 0;
+			Iterator<CsvStateCodes> stateCodeIterator = csvStateCode.iterator();
+			while (stateCodeIterator.hasNext()) {
+				noOfRecords++;
+				CsvStateCodes codeReader = stateCodeIterator.next();
+				System.out.println(codeReader.toString());
+			}
+			return noOfRecords;
+		} catch (IOException E1) {
+			throw new StateCensusAnalyzerException("Invalid Path Provided",
+					StateCensusAnalyzerException.ExceptionType.INCORRECT_PATH);
+		} catch (IllegalStateException E2) {
+			throw new StateCensusAnalyzerException("Invalid state found",
+					StateCensusAnalyzerException.ExceptionType.INCORRECT_STATE);
 		}
-		catch(IllegalStateException E2) {
-			throw new StateCensusAnalyzerException("Invalid state found", StateCensusAnalyzerException.ExceptionType.INCORRECT_STATE);
-		}
-		
 
 	}
 
