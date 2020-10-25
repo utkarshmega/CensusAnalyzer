@@ -25,14 +25,9 @@ public class StateCensusAnalyzer {
 		Reader reader = null;
 		try {
 			reader = Files.newBufferedReader(csvFilePath);
-			CsvToBeanBuilder<CsvStateCensus> builder = new CsvToBeanBuilder<CsvStateCensus>(reader);
-			builder.withType(CsvStateCensus.class);
-			builder.withIgnoreLeadingWhiteSpace(true);
-
-			CsvToBean<CsvStateCensus> csvToBean = builder.build();
 
 			int noOfRecords = 0;
-			Iterator<CsvStateCensus> stateCensusIterator = csvToBean.iterator();
+			Iterator<CsvStateCensus> stateCensusIterator = getCSVIterator(reader, CsvStateCensus.class);
 			while (stateCensusIterator.hasNext()) {
 				noOfRecords++;
 				CsvStateCensus csvReader = stateCensusIterator.next();
@@ -48,19 +43,15 @@ public class StateCensusAnalyzer {
 		}
 
 	}
+
 	// Read the number of records in the state code file
 	public int readStateCodeCsvRecords() throws StateCensusAnalyzerException {
 		Reader reader = null;
 		try {
 			reader = Files.newBufferedReader(csvFilePath);
-			CsvToBeanBuilder<CsvStateCodes> builder = new CsvToBeanBuilder<>(reader);
-			builder.withType(CsvStateCodes.class);
-			builder.withIgnoreLeadingWhiteSpace(true);
-
-			CsvToBean<CsvStateCodes> csvStateCode = builder.build();
-
+	
 			int noOfRecords = 0;
-			Iterator<CsvStateCodes> stateCodeIterator = csvStateCode.iterator();
+			Iterator<CsvStateCodes> stateCodeIterator = getCSVIterator(reader, CsvStateCodes.class);
 			while (stateCodeIterator.hasNext()) {
 				noOfRecords++;
 				CsvStateCodes codeReader = stateCodeIterator.next();
@@ -72,6 +63,18 @@ public class StateCensusAnalyzer {
 					StateCensusAnalyzerException.ExceptionType.INCORRECT_PATH);
 		} catch (IllegalStateException E2) {
 			throw new StateCensusAnalyzerException("Invalid state found",
+					StateCensusAnalyzerException.ExceptionType.INCORRECT_STATE);
+		}
+
+	}
+
+	private <E> Iterator<E> getCSVIterator(Reader reader, Class<E> csvClass) throws StateCensusAnalyzerException {
+		try {
+			CsvToBeanBuilder<E> builder = new CsvToBeanBuilder<E>(reader);
+			CsvToBean<E> csvToBean = builder.withType(csvClass).withIgnoreLeadingWhiteSpace(true).build();
+			return csvToBean.iterator();
+		} catch (IllegalStateException e) {
+			throw new StateCensusAnalyzerException("Invalid state present",
 					StateCensusAnalyzerException.ExceptionType.INCORRECT_STATE);
 		}
 
