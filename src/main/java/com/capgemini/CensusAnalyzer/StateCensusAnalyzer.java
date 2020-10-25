@@ -1,11 +1,14 @@
 package com.capgemini.CensusAnalyzer;
 
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Iterator;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 import java.io.BufferedReader;
 
 import com.opencsv.bean.CsvToBean;
@@ -28,11 +31,7 @@ public class StateCensusAnalyzer {
 
 			int noOfRecords = 0;
 			Iterator<CsvStateCensus> stateCensusIterator = getCSVIterator(reader, CsvStateCensus.class);
-			while (stateCensusIterator.hasNext()) {
-				noOfRecords++;
-				CsvStateCensus csvReader = stateCensusIterator.next();
-				System.out.println(csvReader.toString());
-			}
+			noOfRecords = getCount(stateCensusIterator);
 			return noOfRecords;
 		} catch (IOException E1) {
 			throw new StateCensusAnalyzerException("Invalid Path Provided",
@@ -52,11 +51,7 @@ public class StateCensusAnalyzer {
 	
 			int noOfRecords = 0;
 			Iterator<CsvStateCodes> stateCodeIterator = getCSVIterator(reader, CsvStateCodes.class);
-			while (stateCodeIterator.hasNext()) {
-				noOfRecords++;
-				CsvStateCodes codeReader = stateCodeIterator.next();
-				System.out.println(codeReader.toString());
-			}
+			noOfRecords = getCount(stateCodeIterator);
 			return noOfRecords;
 		} catch (IOException E1) {
 			throw new StateCensusAnalyzerException("Invalid Path Provided",
@@ -78,6 +73,13 @@ public class StateCensusAnalyzer {
 					StateCensusAnalyzerException.ExceptionType.INCORRECT_STATE);
 		}
 
+	}
+	
+	private <E> int getCount(Iterator<E> csvIterator)
+	{
+		Iterable<E> csvIterable = () -> csvIterator;
+		int noOfEntries = (int) StreamSupport.stream(csvIterable.spliterator(), false).count();
+		return noOfEntries;
 	}
 
 }
