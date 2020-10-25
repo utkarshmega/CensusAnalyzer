@@ -30,7 +30,8 @@ public class StateCensusAnalyzer {
 			reader = Files.newBufferedReader(csvFilePath);
 
 			int noOfRecords = 0;
-			Iterator<CsvStateCensus> stateCensusIterator = new OpenCSVBuilder().getCSVIterator(reader, CsvStateCensus.class);
+			ICSVBuilder<CsvStateCensus> builder = CSVBuilderFactory.createCSVBuilder();
+			Iterator<CsvStateCensus> stateCensusIterator = builder.getCSVIterator(reader, CsvStateCensus.class);
 			noOfRecords = getCount(stateCensusIterator);
 			return noOfRecords;
 		} catch (IOException E1) {
@@ -50,7 +51,8 @@ public class StateCensusAnalyzer {
 			reader = Files.newBufferedReader(csvFilePath);
 	
 			int noOfRecords = 0;
-			Iterator<CsvStateCodes> stateCodeIterator = new OpenCSVBuilder().getCSVIterator(reader, CsvStateCodes.class);
+			ICSVBuilder<CsvStateCodes> builder = CSVBuilderFactory.createCSVBuilder();
+			Iterator<CsvStateCodes> stateCodeIterator = builder.getCSVIterator(reader, CsvStateCodes.class);
 			noOfRecords = getCount(stateCodeIterator);
 			return noOfRecords;
 		} catch (IOException E1) {
